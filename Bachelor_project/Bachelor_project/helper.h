@@ -25,7 +25,7 @@
  *  N: the modulo of the space in which computation are done
  *  out: the variable in which the result is saved
  */
-void compute_exponentiation(const mpz_t x, const mpz_t exp, const mpz_t N, mpz_t out);
+void compute_exponentiation(mpz_t x, const mpz_t exp, const mpz_t N, mpz_t out);
 
 
 /*
@@ -38,7 +38,7 @@ void compute_exponentiation(const mpz_t x, const mpz_t exp, const mpz_t N, mpz_t
  *  N: the modulo of the space in which computation are done
  *  out: the variable in which the result is saved
  */
-void compute_power_2T(const mpz_t x, const mpz_t T, const mpz_t N, mpz_t out);
+void compute_power_2T(mpz_t x, const unsigned long int T, const mpz_t N, mpz_t out);
 
 /*
  * Function:  compute_power_2T_opt
@@ -49,22 +49,11 @@ void compute_power_2T(const mpz_t x, const mpz_t T, const mpz_t N, mpz_t out);
  *  T: the sub-exponential power
  *  N: the modulo of the space in which computation are done
  *  saves: the vector in which the intermediate result are saved (note : first value of the vector is for exponent T/(2^step), then 2*T/(2^step),
- *  space_between_values: the frequency of which we will save the result (i.e each values saved in the table correspond to x^(K*T/(2^step))
  *  out: the variable in which the result is saved
  */
-void compute_power_2T_opt(const mpz_t x, const mpz_t T, const mpz_t N, vector* saves, const mpz_t exp_space_between_value, mpz_t out);
+void compute_power_2T_opt(mpz_t x, const unsigned long int T, const mpz_t N, vector* saves, mpz_t out);
 
-/*
- * Function:  compute_space_between_values
- * --------------------
- * computes the exponenent space between each values of the saves' vector (i.e computes T/(2^step))
- * assumption : T is a power of 2, hence the result will be given by the quotient of the euclidan division T/(2^step)
- *
- *  T: the sub-exponential variables
- *  out: the result of the exponential space between each values of the vector in which we are saving intermediates results
- *
- */
-void get_space_between_values(const mpz_t T, mpz_t out);
+
 
 /*
  * Function:  exponentiation_for_proof
@@ -77,11 +66,9 @@ void get_space_between_values(const mpz_t T, mpz_t out);
  *  N: the modulo of the space in which computation are done
  *  exp: the exponent
  *  saves: the vector in which the intermediate result are saved (note : first value of the vector is for exponent T/(2^step), then 2*T/(2^step),
- *  space_between_values: the frequency of which we will save the result (i.e each values saved in the table correspond to x^(K*T/(2^step))
- *  out: the variable in which the result is saved
  *
  */
-void exponentiation_for_proof(mpz_t x, mpz_t T, mpz_t N, mpz_t exp, vector* saves, mpz_t exp_space_between_value, mpz_t out);
+void exponentiation_for_proof (mpz_t x, unsigned long int T, mpz_t N, mpz_t exp, vector* saves, mpz_t out);
 
 /*
  * Function:  check_quatratic_residue
@@ -95,5 +82,15 @@ void exponentiation_for_proof(mpz_t x, mpz_t T, mpz_t N, mpz_t exp, vector* save
  */
 int check_quatratic_residue(const mpz_t var, const mpz_t N);
 
+/*
+ * Function:  greatest_bit_position
+ * --------------------
+ * computes the position of the most significant bit of num
+ *
+ *  num : an unsigned long int variable (encoded on 64 bits)
+ *
+ *  returns: the positon of the most significant bit 
+ */
+unsigned long int greatest_bit_position(unsigned long int num);
 
 #endif /* helper_h */

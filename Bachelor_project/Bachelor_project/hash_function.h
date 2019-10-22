@@ -24,12 +24,25 @@
  *  binary_representation: the result of the converstion of the chars[] to its binary representation
  *  lambda: numbers of bits we want @binary_representation to be
  */
-void string_to_mpz(const unsigned char chars[],  int chars_len, mpz_t binary_representation, int lambda_param);
+void string_to_mpz(const char chars[],  int chars_len, mpz_t binary_representation, int lambda_param);
 
 /*
- * Function:  compute_x_i
+ * Function:  sha256_string
  * --------------------
- *  computes the value of x_(i+1) = x^r * mu_i
+ *  helper function of the function hash_function.
+ *  all the openssl methods where implemented in this method.
+ *
+ *  string: the data on which we a hash will be computed
+ *  output_buffer: the table where the hash is to be saved
+ */
+void sha256_string(char *string, char outputBuffer[65]);
+
+
+/*
+ * Function:  hash_function
+ * --------------------
+ *  computes a hash given the input of the VDF.
+ *  The hash functon used is SHA256. 
  *
  *  x_i: the current value x_i computed during the proof
  *  T: the current value of T/2^i

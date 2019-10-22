@@ -8,10 +8,10 @@
 
 #include "helper.h"
 
-const unsigned long int STEP;
+const unsigned long int STEP = 1;
 
 //#################################################################################################
-void compute_exponentiation(const mpz_t x, const mpz_t exp, const mpz_t N, mpz_t out) {
+void compute_exponentiation(mpz_t x, const mpz_t exp, const mpz_t N, mpz_t out) {
     // tests if odd or not ?
     // if T > 1, then recursive operations
     if ( mpz_cmp_ui(exp, 1) > 0 ) {
@@ -40,109 +40,77 @@ void compute_exponentiation(const mpz_t x, const mpz_t exp, const mpz_t N, mpz_t
 }
 
 //#################################################################################################
-void compute_power_2T (const mpz_t x, const mpz_t T, const mpz_t N, mpz_t out){
-    if (mpz_cmp_ui(T, 0) == 0) {
-        mpz_set(out, x);
-        return;
-    } else {
-        mpz_t new_T;
-        mpz_inits(new_T, NULL);
-        mpz_sub_ui(new_T, T, 1);
-        compute_power_2T(x, new_T, N, out);
-        mpz_mul(out, out, out);
-    }
-    return;
+void compute_power_2T (mpz_t x, const unsigned long int T, const mpz_t N, mpz_t out){
+    mpz_t exp;
+    mpz_init(exp);
+    mpz_setbit(exp, T);
+    mpz_powm(out, x, exp, N);
 }
 
 //#################################################################################################
-void compute_power_2T_opt (const mpz_t x, const mpz_t T, const mpz_t N, vector* saves, const mpz_t exp_space_between_value, mpz_t out) {
-    if (mpz_cmp_ui(T, 0) == 0) {
-        mpz_set(out, x);
-        return;
-    } else {
-        mpz_t new_T;
-        mpz_t mod;
-        mpz_inits(new_T, mod, NULL);
-        mpz_sub_ui(new_T, T, 1);
-        compute_power_2T_opt(x, new_T, N, saves, exp_space_between_value, out);
-        mpz_mul(out, out, out);
-        
-        // verify if we need to save result or not :
-        mpz_mod(mod, T, exp_space_between_value);
-        if(mpz_cmp_ui(mod, 0) == 0) {
-            vector_push(saves, out);
-        }
-        
-    }
-    return;
-}
-
-//#################################################################################################
-void get_space_between_values (const mpz_t T, mpz_t out) {
-    mpz_t divisor;
-    unsigned long int divisor_int = pow(2, STEP);
-    mpz_init_set_ui(divisor, divisor_int);
-    mpz_cdiv_q(out, T, divisor);
-}
-
-//#################################################################################################
-void exponentiation_for_proof (mpz_t x, mpz_t T, mpz_t N, mpz_t exp, vector* saves, mpz_t exp_space_between_value, mpz_t out) {
-    // initialisation of the variables
-    mpz_t div;
-    mpz_t q;
-    mpz_t r;
-    mpz_t partial_result;
-    unsigned long int sub_exponent;
-    mpz_t k;
-    unsigned long int k_;
-    mpz_inits(div, q, r, partial_result, k, NULL);
+void compute_power_2T_opt (mpz_t x, const unsigned long int T, const mpz_t N, vector* saves, mpz_t out) {
     unsigned long int power_2STEP = pow(2, STEP);
+    unsigned long int exp_space_between_values = T/power_2STEP;
     
+    mpz_t res;
+    mpz_init(res);
+    compute_power_2T(x, exp_space_between_values, N, res);
+    vector_push(saves, res);
     
-    mp_bitcnt_t exp_space_between_value_ = mpz_get_ui (exp_space_between_value);
-    mpz_setbit(div, exp_space_between_value_);
-    mpz_cdiv_qr(q, r, exp, div);
-    
-    /***
-     code here :
-     ASSUMPTION IS : T IS CODED ON NO MORE THAN 64 BITS
-    ***/
-    // because we made the assumption that T =< 64 bits, r is less than or equalt to 64 bits and can be conveted to unsigned long without any loss
-    unsigned long int r_ = mpz_get_ui(r);
-    mpz_pow_ui(partial_result, x, r_);
-    mpz_mul(q, q, div);
-    sub_exponent = mpz_sizeinbase(q, 2) - 1;
-    k_ = sub_exponent / power_2STEP;
-    mpz_set_ui(k, k_);
-    /***
-     code here :
-     END OF THE ASSUMPTION
-     ***/
-    
-    if (mpz_cmp_ui(k,power_2STEP) <= 0 ){
-        k_ = mpz_get_ui(k);
-        if (k_ > saves->size > 0) {
-            printf("Invalid Index");
-            return;
+    for (int i = 0; i < power_2STEP - 1; ++i) {
+        compute_power_2T(res, exp_space_between_values, N, res);
+        if ( !vector_push(saves, res) ) {
+            printf("Unable to save intermediate computation");
         }
-        vector_get(saves, k_ , out);
-    } else {
-        mpz_t alpha;
-        mpz_t lambda;
-        mpz_t temp;
-        mpz_t last_x;
-        mpz_t partial_exponent_1;
-        mpz_t partial_exponent_2;
-        mpz_inits(alpha, lambda, temp, last_x, partial_exponent_1, partial_exponent_2, NULL);
-        mpz_cdiv_qr_ui(alpha, lambda, k, power_2STEP);
-        vector_get(saves, saves->size - 1, last_x);
-        mpz_sub_ui(partial_exponent_1, alpha, 1);
-        mpz_mul(partial_exponent_1, partial_exponent_1, T);
-        compute_power_2T(last_x, partial_exponent_1, N, temp);
-        mpz_mul(partial_exponent_2, k, exp_space_between_value);
-        compute_power_2T(temp, partial_exponent_2, N, out);
     }
-    mpz_mul(out, out, partial_result);
+    mpz_set(out, res);
+}
+
+
+//#################################################################################################
+void exponentiation_for_proof (mpz_t x, unsigned long int T, mpz_t N, mpz_t exp, vector* saves, mpz_t out) {
+    unsigned long int power_2STEP = pow(2, STEP);
+    unsigned long int exp_space_between_values = T/power_2STEP;
+    mpz_t exp_copy;
+    mpz_init_set(exp_copy, exp);
+    unsigned long int q = mpz_sizeinbase(exp, 2) - 1;
+    
+
+    
+    if (q < exp_space_between_values) {
+        mpz_powm(out, x, exp, N);
+        return;
+    } else {
+        mpz_t rest;
+        mpz_t saved_value;
+        mpz_inits(rest, saved_value, NULL);
+        mpz_clrbit(exp_copy, q);
+        exponentiation_for_proof(x, T, N, exp_copy, saves, rest);
+
+        //mpz_powm(rest, x, exp_copy, N);
+        unsigned long int k = q/exp_space_between_values;
+        unsigned long int rest_exp = q % exp_space_between_values;
+
+        if (k < power_2STEP || (k == power_2STEP && mpz_cmp_ui(exp_copy, 0) == 0)) {
+            if ( k - 1 < saves->size) {
+                vector_get(saves, k - 1, saved_value);
+
+            } else {
+                printf("Index given too big, unable to reach correct saved value. \n");
+            }
+        } else {
+            unsigned long int alpha = q/power_2STEP;
+            
+            vector_get(saves, saves->size - 1, saved_value);
+            compute_power_2T(saved_value, T*(alpha -1), N, saved_value);
+
+        }
+        
+        compute_power_2T(saved_value, rest_exp, N, saved_value);
+
+        mpz_mul(out, rest, saved_value);
+        mpz_mod(out, out, N);
+    }
 }
 
 //#################################################################################################
@@ -153,4 +121,29 @@ int check_quatratic_residue(const mpz_t var, const mpz_t N) {
     } else {
        return 0;
     }
+}
+
+//#################################################################################################
+unsigned long int greatest_bit_position(unsigned long int num) {
+    if (num == 0) {
+        printf("Num is zero, greatest bit doesn't exists");
+        return 0;
+    }
+    unsigned long int m;
+    m = num;
+    m = m | m >> 1;
+    m = m | m >> 2;
+    m = m | m >> 4;
+    m = m | m >> 8;
+    m = m | m >> 16;
+    m = m | m >> 32;
+    unsigned long int res = 0;
+    
+    while ( m != 0) {
+        m = m >> 1;
+        res++;
+    }
+    m = m & ((~m >> 1)^0x8000000000000000);
+    return res - 1 ;
+
 }

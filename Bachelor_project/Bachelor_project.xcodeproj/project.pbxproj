@@ -12,6 +12,7 @@
 		AB84691E23579A5B0031A453 /* vector.c in Sources */ = {isa = PBXBuildFile; fileRef = AB84691D23579A5B0031A453 /* vector.c */; };
 		AB8469212357DAE80031A453 /* compute_proof.c in Sources */ = {isa = PBXBuildFile; fileRef = AB8469202357DAE80031A453 /* compute_proof.c */; };
 		AB8469242357E1280031A453 /* hash_function.c in Sources */ = {isa = PBXBuildFile; fileRef = AB8469232357E1280031A453 /* hash_function.c */; };
+		AB84692B235E1E6B0031A453 /* unit_tests.c in Sources */ = {isa = PBXBuildFile; fileRef = AB84692A235E1E6B0031A453 /* unit_tests.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -37,6 +38,8 @@
 		AB8469202357DAE80031A453 /* compute_proof.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = compute_proof.c; sourceTree = "<group>"; };
 		AB8469222357E1280031A453 /* hash_function.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hash_function.h; sourceTree = "<group>"; };
 		AB8469232357E1280031A453 /* hash_function.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hash_function.c; sourceTree = "<group>"; };
+		AB846929235E1E6B0031A453 /* unit_tests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = unit_tests.h; sourceTree = "<group>"; };
+		AB84692A235E1E6B0031A453 /* unit_tests.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = unit_tests.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +81,8 @@
 				AB8469202357DAE80031A453 /* compute_proof.c */,
 				AB8469222357E1280031A453 /* hash_function.h */,
 				AB8469232357E1280031A453 /* hash_function.c */,
+				AB846929235E1E6B0031A453 /* unit_tests.h */,
+				AB84692A235E1E6B0031A453 /* unit_tests.c */,
 			);
 			path = Bachelor_project;
 			sourceTree = "<group>";
@@ -141,6 +146,7 @@
 				AB846912235798EC0031A453 /* main.c in Sources */,
 				AB84691B23579A370031A453 /* helper.c in Sources */,
 				AB8469212357DAE80031A453 /* compute_proof.c in Sources */,
+				AB84692B235E1E6B0031A453 /* unit_tests.c in Sources */,
 				AB84691E23579A5B0031A453 /* vector.c in Sources */,
 				AB8469242357E1280031A453 /* hash_function.c in Sources */,
 			);

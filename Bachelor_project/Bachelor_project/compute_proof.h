@@ -10,7 +10,6 @@
 #define compute_proof_h
 
 
-#include "helper.h"
 #include "hash_function.h"
 
 /*
@@ -50,7 +49,7 @@ void compute_y_i(mpz_t y_in, mpz_t mu_i, mpz_t y_out, mpz_t N, mpz_t r);
  *  T: exponent T/2^i (i.e initialy is equal to T initial)
  *  N: modulo of the class
  */
-void compute_proof_brute_force(mpz_t x_in, mpz_t y_in, vector* pi, mpz_t T, mpz_t N);
+void compute_proof_brute_force (const mpz_t x, const mpz_t y, vector* pi, unsigned long int T, mpz_t N);
 
 /*
  * Function:  compute_proof_opt
@@ -59,7 +58,7 @@ void compute_proof_brute_force(mpz_t x_in, mpz_t y_in, vector* pi, mpz_t T, mpz_
  *
  *  TO BE COMPLETED
  */
-void compute_proof_opt(mpz_t x_in, mpz_t y_in, mpz_t x, vector* pi, mpz_t T, mpz_t N, mpz_t e_x, mpz_t e_mu, vector* saves, mpz_t step_power);
+void compute_proof_opt (const mpz_t x, const mpz_t y, vector* pi, unsigned long int T, mpz_t N, vector* saves);
 
 
 #endif /* compute_proof_h */

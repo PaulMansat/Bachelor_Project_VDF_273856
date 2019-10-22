@@ -8,112 +8,126 @@
 
 
 
-#include "compute_proof.h"
+#include "unit_tests.h"
 
-
-
-
-int VDF_Ver(mpz_t x, const mpz_t T, const mpz_t N, mpz_t y, vector* pi) {
+/*
+ * Function:  VDF_Ver
+ * --------------------
+ *  checks that the given proof @pi is correct
+ *
+ *  x: the number that was given to the prover
+ *  T: the sub-exponent given to the prover
+ *  N: the product of two safe primes
+ *  pi: the proof made by the verifier
+ *
+ *  returns: 0 if the proof is incorrect and 1 if the proof is correct 
+ */
+int VDF_Ver (mpz_t x, unsigned long T,  mpz_t N, mpz_t y, vector* pi) {
     // verify that x and y are in QR
-    
+    if ( (check_quatratic_residue(x, N) == 1) || (check_quatratic_residue(y, N) == 1) ) return 0;
+
+    mpz_t r;
     mpz_t x_next;
     mpz_t y_next;
-    mpz_t mu_current;
-    mpz_t temp;
-    mpz_t T_next;
-    mpz_t r;
-    mpz_inits(x_next, y_next, mu_current, temp, T_next, r, NULL);
-    
-    // set x_next to x ... same for y and T_next
-    mpz_set(x_next, x);
-    mpz_set(y_next, y);
-    mpz_set(T_next, T);
-    
-    // check that x and y are in QR+
-    if ( (check_quatratic_residue(x, N) == 1) || (check_quatratic_residue(y, N) == 1) ) return 1;
+    mpz_t mu;
+    mpz_t exp_mpz;
+    mpz_inits (r, x_next, y_next, mu, exp_mpz, NULL);
+    mpz_set (x_next, x);
+    mpz_set (y_next, y);
+    mpz_set_ui(exp_mpz, T);
     
     for (int i = 0; i < pi->size; ++i) {
-        if(mpz_odd_p(T) > 0) mpz_add_ui(T_next, T_next, 1);
-        mpz_cdiv_q_ui(T_next, T_next, 2);
-        
-        // get the mu_current from the proof vector
-        vector_get(pi, i, mu_current);
-        
-        // check that mu_i is in QR+
-        if ( check_quatratic_residue(mu_current, N) == 1) return 1;
-        
-        // compute the exponent r
-        hash_function(x_next, T_next, y_next, mu_current, r);
-        
-        //**********************
-        // COMPUTATION OF X AND Y TO BE CHECKED
-        //**********************
-        
-        // computation of x_next
-        mpz_powm(x_next, x_next, r, N);
-        mpz_mul(x_next, x_next, mu_current);
-        
-        // computation of y_next
-        mpz_powm(temp, mu_current, r, N);
-        mpz_mul(y_next, y_next, temp);
-        
-        // comparaison of y_next and x_next
-        if(mpz_odd_p(T) > 0) mpz_mul(y_next, y_next, y_next);
-        
+        vector_get(pi, i, mu);
+        if (check_quatratic_residue(mu, N) == 1) return 0;
+        hash_function(x_next, exp_mpz, y_next, mu, r);
+        compute_x_i(x_next, mu, x_next, N, r);
+        compute_y_i(y_next, mu, y_next, N, r);
+        mpz_cdiv_q_ui(exp_mpz, exp_mpz, 2);
     }
     
-    mpz_t x_next_square;
-    mpz_init(x_next_square);
-    mpz_mul(x_next_square, x_next, x_next);
-    mpz_mod(x_next_square, x_next_square, N);
+    mpz_mul(x_next, x_next, x_next);
+    mpz_mod(x_next, x_next, N);
     
-    if( mpz_cmp(y_next, x_next_square ) == 0 ) return 0;
-    else return 1;
+    if (mpz_cmp(x_next, y_next) == 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+    return 0;
 }
 
-void VDF_Sol(mpz_t x, mpz_t T, mpz_t y, mpz_t N, vector* pi) {
-
-    compute_power_2T(x, T, N, y);
-    //printf("%lu \n", mpz_get_ui (y));
-    
+/*
+ * Function:  VDF_Sol
+ * --------------------
+ *  computes the given challenge (i.e x^(2^T)) and build a proof on the result.
+ *  the proof is computed brute force (no previous calculations are re-used).
+ *
+ *  x: the number that was given to the prover
+ *  T: the sub-exponent given to the prover
+ *  N: the product of two safe primes
+ *  pi: the proof made by the verifier
+ */
+void VDF_Sol(mpz_t x, unsigned long int T, mpz_t y, mpz_t N, vector* pi) {
+    compute_power_2T(x, T, N, y);    
     mpz_mod (y, y, N);
-    
-    //printf("%lu \n", mpz_get_ui (T));
     compute_proof_brute_force(x, y, pi, T, N);
     
 }
 
-void VDF_Sol_opt(mpz_t x, mpz_t T, mpz_t y, mpz_t N, vector* pi, vector* saves, mpz_t step) {
-    mpz_t x_square;
-    mpz_init(x_square);
-    mpz_mul(x_square, x, x);
+/*
+ * Function:  VDF_Sol_opt
+ * --------------------
+ *  computes the given challenge (i.e x^(2^T)) and build a proof on the result.
+ *  the proof is computed by re-using previously computed results.
+ *
+ *  x: the number that was given to the prover
+ *  T: the sub-exponent given to the prover
+ *  N: the product of two safe primes
+ *  pi: the proof made by the verifier
+ */
+void VDF_Sol_opt(mpz_t x, unsigned long int T, mpz_t y, mpz_t N, vector* pi) {
+    vector saves;
+    construct_vector(&saves);
+    compute_power_2T_opt(x, T, N, &saves, y);
+    mpz_mod(y, y, N);
+    compute_proof_opt(x, y, pi, T, N, &saves);
+   
+}
+
+/*
+ * Function:  VDF_test
+ * --------------------
+ *  non-exhaustive test of the verifier.
+ *  Important note : the test relies on the the prover to compute a correct proof
+ */
+void VDF_test(void) {
+    mpz_t x;
+    mpz_t y;
+    mpz_t N;
+    mpz_inits (x, y, N, NULL);
+    mpz_set_ui(x, 5);
+    mpz_set_ui(N, 35);
+    unsigned long int T = 8;
+    vector pi;
+    construct_vector(&pi);
     
-    // TO DO
-    /*
-    compute_power_2T_opt(x, T, N, saves, <#const __mpz_struct *exp_space_between_value#>, <#__mpz_struct *out#>)
-    squaring_sol_opt(x, T, y, N, x_square, saves, step);
-    //printf("%lu \n", mpz_get_ui (y));
     
-    mpz_mod (y, y, N);
-    
-    //printf("%lu \n", mpz_get_ui (T));
-    mpz_t initial_e_x;
-    mpz_init_set_ui(initial_e_x, 1);
-    mpz_t initial_e_mu;
-    mpz_init_set_ui(initial_e_mu, 1);
-    mpz_t step_power;
-    mpz_init(step_power);
-    shift_left(initial_e_x, step, step_power); // we give e_x because equal to 1 but could be any mpz number equal to 1
-    
-    
-    compute_proof_opt(x, y, x, pi, T, N, initial_e_x, initial_e_mu, saves, step_power);
-     */
+    VDF_Sol_opt(x, T, y, N, &pi);
+    if(VDF_Ver(x, T, N, y, &pi)) {
+        printf("Green : VDF_Ver working \n");
+    } else {
+        printf("Red : VDF_Ver not working \n");
+
+    }
 }
 
 
 
 int main(int argc, const char * argv[]) {
     // insert code here...
-    printf("Hello, World!\n");
+    test_all_helper();
+    test_all_compute_proof();
+    VDF_test();
+    
     return 0;
 }
