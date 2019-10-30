@@ -10,10 +10,13 @@
 
 //#################################################################################################
 void string_to_mpz(const char chars[],  int chars_len, mpz_t binary_representation, int lambda_param) {
+    
     if(chars == NULL) {
         return;
     }
     
+    mpz_t res;
+    mpz_init(res);
     int number_chars_used = lambda_param / 8 + lambda_param % 8;
     mpz_t temp;
     mpz_init(temp);
@@ -24,14 +27,12 @@ void string_to_mpz(const char chars[],  int chars_len, mpz_t binary_representati
         for(int j = 0; j < 8; j++) {
             if (chars[i] & 1 << j) {
                 mpz_ui_pow_ui(temp, 2, counter);
-                mpz_add(binary_representation, binary_representation, temp);
+                mpz_add(res, res, temp);
             }
             ++counter;
         }
     }
-    
-    
-    
+    mpz_set(binary_representation, res);
     return;
 }
 
@@ -80,10 +81,10 @@ void hash_function(const mpz_t x_i, const mpz_t T, const mpz_t y_i, const mpz_t 
     strcat(data, y_data);
     strcat(data, u_data);
     
-    char outputBuffer[65];
+    char outputBuffer[65] = "";
+
     sha256_string(data, outputBuffer);
-    
-    
+
     
     string_to_mpz(outputBuffer, 65, out, 64);
     

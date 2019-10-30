@@ -8,7 +8,7 @@
 
 #include "helper.h"
 
-const unsigned long int STEP = 1;
+const unsigned long int STEP = 8;
 
 //#################################################################################################
 void compute_exponentiation(mpz_t x, const mpz_t exp, const mpz_t N, mpz_t out) {
@@ -41,10 +41,14 @@ void compute_exponentiation(mpz_t x, const mpz_t exp, const mpz_t N, mpz_t out) 
 
 //#################################################################################################
 void compute_power_2T (mpz_t x, const unsigned long int T, const mpz_t N, mpz_t out){
-    mpz_t exp;
-    mpz_init(exp);
-    mpz_setbit(exp, T);
-    mpz_powm(out, x, exp, N);
+    if (T == 0) {
+        mpz_set(out, x);
+    } else {
+        mpz_t exp;
+        mpz_init(exp);
+        mpz_setbit(exp, T);
+        mpz_powm(out, x, exp, N);
+    }
 }
 
 //#################################################################################################
@@ -68,13 +72,70 @@ void compute_power_2T_opt (mpz_t x, const unsigned long int T, const mpz_t N, ve
 
 
 //#################################################################################################
-void exponentiation_for_proof (mpz_t x, unsigned long int T, mpz_t N, mpz_t exp, vector* saves, mpz_t out) {
+void exponentiation_for_proof (const mpz_t x, unsigned long int T, mpz_t N, mpz_t exp, vector* saves, mpz_t out) {
+    
+    unsigned long int power_2STEP = pow(2, STEP);
+    unsigned long int exp_space_between_values = T/power_2STEP;
+    unsigned long int number_ones = mpz_popcount(exp);
+    mpz_t exp_copy;
+    mpz_init_set(exp_copy, exp);
+  
+    mpz_t res;
+    mpz_init_set_ui(res, 1);
+    
+    for (unsigned long int i = 0 ; i < number_ones ; ++i) {
+        unsigned long int q = mpz_sizeinbase(exp_copy, 2) - 1;
+        
+        
+        if (q < exp_space_between_values) {
+            mpz_t temp;
+            mpz_init(temp);
+            mpz_powm(temp, x, exp_copy, N);
+            mpz_mul(res, res, temp);
+            break;
+        } else {
+            mpz_t saved_value;
+            mpz_init(saved_value);
+            mpz_clrbit(exp_copy, q);
+            //exponentiation_for_proof(x, T, N, exp_copy, saves, rest);
+            
+            unsigned long int k = q/exp_space_between_values;
+            unsigned long int rest_exp = q % exp_space_between_values;
+            
+            if (k <= power_2STEP) { //|| (k == power_2STEP && mpz_cmp_ui(exp_copy, 0) == 0)) {
+                if (k <= saves->size) {
+                    vector_get(saves, k - 1, saved_value);
+                    
+                } else {
+                    printf("Index given too big, unable to reach correct saved value. \n");
+                }
+            } else {
+                unsigned long int alpha = k/power_2STEP;
+                unsigned long int beta = k % power_2STEP;
+                
+                vector_get(saves, power_2STEP - 1, saved_value);
+                compute_power_2T(saved_value, T*(alpha -1), N, saved_value);
+                compute_power_2T(saved_value, exp_space_between_values * beta, N, saved_value);
+                
+            }
+            compute_power_2T(saved_value, rest_exp, N, saved_value);
+            
+            mpz_mul(res, res, saved_value);
+        }
+
+    }
+    mpz_mod(out, res, N);
+
+    return;
+
+}
+/*void exponentiation_for_proof (const mpz_t x, unsigned long int T, mpz_t N, mpz_t exp, vector* saves, mpz_t out) {
+    
     unsigned long int power_2STEP = pow(2, STEP);
     unsigned long int exp_space_between_values = T/power_2STEP;
     mpz_t exp_copy;
     mpz_init_set(exp_copy, exp);
     unsigned long int q = mpz_sizeinbase(exp, 2) - 1;
-    
 
     
     if (q < exp_space_between_values) {
@@ -85,33 +146,36 @@ void exponentiation_for_proof (mpz_t x, unsigned long int T, mpz_t N, mpz_t exp,
         mpz_t saved_value;
         mpz_inits(rest, saved_value, NULL);
         mpz_clrbit(exp_copy, q);
-        exponentiation_for_proof(x, T, N, exp_copy, saves, rest);
+        mpz_powm(rest, x, exp_copy, N);
+        //exponentiation_for_proof(x, T, N, exp_copy, saves, rest);
 
-        //mpz_powm(rest, x, exp_copy, N);
         unsigned long int k = q/exp_space_between_values;
         unsigned long int rest_exp = q % exp_space_between_values;
 
-        if (k < power_2STEP || (k == power_2STEP && mpz_cmp_ui(exp_copy, 0) == 0)) {
-            if ( k - 1 < saves->size) {
+        if (k <= power_2STEP) { //|| (k == power_2STEP && mpz_cmp_ui(exp_copy, 0) == 0)) {
+            if (k <= saves->size) { 
                 vector_get(saves, k - 1, saved_value);
 
             } else {
                 printf("Index given too big, unable to reach correct saved value. \n");
             }
         } else {
-            unsigned long int alpha = q/power_2STEP;
-            
-            vector_get(saves, saves->size - 1, saved_value);
+            unsigned long int alpha = k/power_2STEP;
+            unsigned long int beta = k % power_2STEP;
+
+            vector_get(saves, power_2STEP - 1, saved_value);
             compute_power_2T(saved_value, T*(alpha -1), N, saved_value);
+            compute_power_2T(saved_value, exp_space_between_values * beta, N, saved_value);
 
         }
-        
         compute_power_2T(saved_value, rest_exp, N, saved_value);
 
         mpz_mul(out, rest, saved_value);
         mpz_mod(out, out, N);
+        return;
     }
-}
+    
+}*/
 
 //#################################################################################################
 int check_quatratic_residue(const mpz_t var, const mpz_t N) {
@@ -137,13 +201,14 @@ unsigned long int greatest_bit_position(unsigned long int num) {
     m = m | m >> 8;
     m = m | m >> 16;
     m = m | m >> 32;
+    m = m & ((~m >> 1)); //^0x8000000000000000);
+
     unsigned long int res = 0;
     
     while ( m != 0) {
         m = m >> 1;
         res++;
     }
-    m = m & ((~m >> 1)^0x8000000000000000);
     return res - 1 ;
 
 }

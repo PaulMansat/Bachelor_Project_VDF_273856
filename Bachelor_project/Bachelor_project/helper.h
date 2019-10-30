@@ -68,7 +68,7 @@ void compute_power_2T_opt(mpz_t x, const unsigned long int T, const mpz_t N, vec
  *  saves: the vector in which the intermediate result are saved (note : first value of the vector is for exponent T/(2^step), then 2*T/(2^step),
  *
  */
-void exponentiation_for_proof (mpz_t x, unsigned long int T, mpz_t N, mpz_t exp, vector* saves, mpz_t out);
+void exponentiation_for_proof (const mpz_t x, unsigned long int T, mpz_t N, mpz_t exp, vector* saves, mpz_t out);
 
 /*
  * Function:  check_quatratic_residue

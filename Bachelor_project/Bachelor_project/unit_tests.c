@@ -66,6 +66,7 @@ void compute_power_2T_opt_test (void) {
     vector_get(&saves, 1, save2);
     
 
+
     if (expected_res == res && mpz_get_ui(save1) == save1_expected && mpz_get_ui(save2) == save2_expected) {
         printf("Green : compute_power_2T_opt working \n");
     } else {
@@ -118,11 +119,27 @@ void exponentiation_for_proof_test (void) {
     mpz_inits(res1, res2, res3, res4, res5, res6, NULL);
 
     exponentiation_for_proof(x, T1, N, exp1, &saves, res1);
+    printf("expected 1 is : %lu \n", exp_res1);
+    printf("save 1 is : %lu \n", mpz_get_ui(res1));
     exponentiation_for_proof(x, T1, N, exp2, &saves, res2);
+    printf("expected 2 is : %lu \n", exp_res2);
+    printf("save 2 is : %lu \n", mpz_get_ui(res2));
     exponentiation_for_proof(x, T1, N, exp3, &saves, res3);
+    printf("expected 3 is : %lu \n", exp_res3);
+    printf("save 3 is : %lu \n", mpz_get_ui(res3));
     exponentiation_for_proof(x, T1, N, exp4, &saves, res4);
+    printf("expected 4 is : %lu \n", exp_res4);
+    printf("save 4 is : %lu \n", mpz_get_ui(res4));
     exponentiation_for_proof(x, T1, N, exp5, &saves, res5);
+    printf("expected 5 is : %lu \n", exp_res5);
+    printf("save 5 is : %lu \n", mpz_get_ui(res5));
     exponentiation_for_proof(x, T1, N, exp6, &saves, res6);
+    printf("expected 6 is : %lu \n", exp_res6);
+    printf("save 6 is : %lu \n", mpz_get_ui(res6));
+    
+    
+   
+    
 
 
     
@@ -131,7 +148,7 @@ void exponentiation_for_proof_test (void) {
         && exp_res6 == mpz_get_ui(res6)) {
         printf("Green : exponentiation_for_proof working \n");
     } else {
-        printf("Red : compute_power_2T_opt not working \n");
+        printf("Red : exponentiation_for_proof not working \n");
     }
     
     // do recursive now

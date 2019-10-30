@@ -28,7 +28,9 @@ void compute_y_i(mpz_t y_in, mpz_t mu_i, mpz_t y_out, mpz_t N, mpz_t r) {
 
 //#################################################################################################
 void compute_proof_brute_force (const mpz_t x, const mpz_t y, vector* pi, unsigned long int T, mpz_t N) {
+    printf("PROVER \n");
     unsigned long int t = greatest_bit_position(T);
+    printf("T is : %lu \n", T);
     unsigned long int exp = T;
     mpz_t mu;
     mpz_t x_next;
@@ -40,12 +42,21 @@ void compute_proof_brute_force (const mpz_t x, const mpz_t y, vector* pi, unsign
     mpz_set(y_next, y);
     for (int i = 0; i < t; ++ i) {
         mpz_set_ui(r, 0);
+        printf("-------- \n");
         mpz_set_d(exp_mpz, exp);
         exp = exp/2;
         compute_power_2T(x_next, exp, N, mu);
+        
+        printf ("mu in proof comp : %lu \n", mpz_get_ui(mu));
+        printf ("exponent in proof comp : %lu \n", mpz_get_ui(exp_mpz));
+
         hash_function(x_next, exp_mpz, y_next, mu, r);
         compute_x_i(x_next, mu, x_next, N, r);
         compute_y_i(y_next, mu, y_next, N, r);
+        printf("x in ver computation : %lu \n", mpz_get_ui(x_next));
+        printf("y in ver computation : %lu \n", mpz_get_ui(y_next));
+        printf("hash in ver computation : %lu \n", mpz_get_ui(r));
+
         vector_push(pi, mu);
     }
 }
@@ -67,17 +78,29 @@ void compute_proof_opt (const mpz_t x, const mpz_t y, vector* pi, unsigned long 
     mpz_set_d(exp_mu, 0);
     mpz_set_ui(T_mpz, T);
     for (unsigned long int i = T/2; i >= 1; i = i/2) {
+        //printf("-------- \n");
         mpz_setbit(exp_mu, i);
         mpz_mul(exp_mu, exp_x, exp_mu);
-        exponentiation_for_proof(x_next, T, N, exp_mu, saves, mu);
+        exponentiation_for_proof(x, T, N, exp_mu, saves, mu);
+        
+        //printf ("mu in proof comp : %lu \n", mpz_get_ui(mu));
+        //printf ("exponent in proof comp : %lu \n", mpz_get_ui(T_mpz));
+        
         hash_function(x_next, T_mpz, y_next, mu, r);
         mpz_mul(exp_x, exp_x, r);
         mpz_add(exp_x, exp_x, exp_mu);
         mpz_set_ui(T_mpz, i);
         vector_push(pi, mu);
-        mpz_set_ui(exp_mu, 0);
         compute_x_i(x_next, mu, x_next, N, r);
         compute_y_i(y_next, mu, y_next, N, r);
+       
+        
+
+        //printf("x in ver computation : %lu \n", mpz_get_ui(x_next));
+        //printf("y in ver computation : %lu \n", mpz_get_ui(y_next));
+        //printf("hash in ver computation : %lu \n", mpz_get_ui(r));
+        mpz_set_ui(exp_mu, 0);
+        mpz_set_ui(r, 0);
     }
     
     
