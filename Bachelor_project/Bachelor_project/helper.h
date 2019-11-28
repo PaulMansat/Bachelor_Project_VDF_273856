@@ -41,6 +41,21 @@ void compute_exponentiation(mpz_t x, const mpz_t exp, const mpz_t N, mpz_t out);
 void compute_power_2T(mpz_t x, const unsigned long int T, const mpz_t N, mpz_t out);
 
 /*
+ * Function:  compute_s_parameter
+ * --------------------
+ * compute the s parameter of the proof. As a reminder pow(2, s) is the number of saved values
+ * assumption : T is less than or equal to 64 bits & size_t is encoded on 64 bits
+ *
+ *  T: the variable used to compute x^(2^T) in the Time lock puzzle
+ *  lambda : the security parameter
+ *  exp: the exponent
+ *  saves: the vector in which the intermediate result are saved (note : first value of the vector is for exponent T/(2^step), then 2*T/(2^step),
+ *
+ *  returns the s parameter as an unsigned long int
+ */
+unsigned long int compute_s_parameter (unsigned long int T, unsigned long int lambda);
+
+/*
  * Function:  compute_power_2T_opt
  * --------------------
  * computes recusively out = x^(2^T) and saves some results into the vector saves
@@ -52,7 +67,6 @@ void compute_power_2T(mpz_t x, const unsigned long int T, const mpz_t N, mpz_t o
  *  out: the variable in which the result is saved
  */
 void compute_power_2T_opt(mpz_t x, const unsigned long int T, const mpz_t N, vector* saves, mpz_t out);
-
 
 
 /*
@@ -93,4 +107,6 @@ int check_quatratic_residue(const mpz_t var, const mpz_t N);
  */
 unsigned long int greatest_bit_position(unsigned long int num);
 
+
+void generate_safeprime(unsigned long int size, mpz_t out);
 #endif /* helper_h */

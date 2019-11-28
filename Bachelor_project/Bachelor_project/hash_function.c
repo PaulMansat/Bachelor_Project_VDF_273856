@@ -81,13 +81,15 @@ void hash_function(const mpz_t x_i, const mpz_t T, const mpz_t y_i, const mpz_t 
     strcat(data, y_data);
     strcat(data, u_data);
     
-    char outputBuffer[65] = "";
+    char outputBuffer[100] = "";
 
     sha256_string(data, outputBuffer);
 
     
-    string_to_mpz(outputBuffer, 65, out, 64);
+    string_to_mpz(outputBuffer, 100, out, 100);
     
+    // TO BE DELETED AFTER
+    //mpz_set_ui(out, 1);
     
     return;
 }

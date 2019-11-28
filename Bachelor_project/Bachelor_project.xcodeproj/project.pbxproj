@@ -13,6 +13,7 @@
 		AB8469212357DAE80031A453 /* compute_proof.c in Sources */ = {isa = PBXBuildFile; fileRef = AB8469202357DAE80031A453 /* compute_proof.c */; };
 		AB8469242357E1280031A453 /* hash_function.c in Sources */ = {isa = PBXBuildFile; fileRef = AB8469232357E1280031A453 /* hash_function.c */; };
 		AB84692B235E1E6B0031A453 /* unit_tests.c in Sources */ = {isa = PBXBuildFile; fileRef = AB84692A235E1E6B0031A453 /* unit_tests.c */; };
+		AB986E10237347F900628D39 /* benchmarking.c in Sources */ = {isa = PBXBuildFile; fileRef = AB986E0F237347F900628D39 /* benchmarking.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -40,6 +41,8 @@
 		AB8469232357E1280031A453 /* hash_function.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hash_function.c; sourceTree = "<group>"; };
 		AB846929235E1E6B0031A453 /* unit_tests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = unit_tests.h; sourceTree = "<group>"; };
 		AB84692A235E1E6B0031A453 /* unit_tests.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = unit_tests.c; sourceTree = "<group>"; };
+		AB986E0E237347F900628D39 /* benchmarking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = benchmarking.h; sourceTree = "<group>"; };
+		AB986E0F237347F900628D39 /* benchmarking.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = benchmarking.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +86,8 @@
 				AB8469232357E1280031A453 /* hash_function.c */,
 				AB846929235E1E6B0031A453 /* unit_tests.h */,
 				AB84692A235E1E6B0031A453 /* unit_tests.c */,
+				AB986E0E237347F900628D39 /* benchmarking.h */,
+				AB986E0F237347F900628D39 /* benchmarking.c */,
 			);
 			path = Bachelor_project;
 			sourceTree = "<group>";
@@ -144,6 +149,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AB846912235798EC0031A453 /* main.c in Sources */,
+				AB986E10237347F900628D39 /* benchmarking.c in Sources */,
 				AB84691B23579A370031A453 /* helper.c in Sources */,
 				AB8469212357DAE80031A453 /* compute_proof.c in Sources */,
 				AB84692B235E1E6B0031A453 /* unit_tests.c in Sources */,

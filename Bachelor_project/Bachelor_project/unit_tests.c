@@ -74,6 +74,14 @@ void compute_power_2T_opt_test (void) {
     }
 }
 
+void compute_s_parameter_test (void) {
+    if (6 == compute_s_parameter(pow(2, 25), 100) &&  1 == compute_s_parameter(pow(2, 25), 100)) {
+        printf("Green : compute_s_parameter working \n");
+    } else {
+        printf("Red : compute_s_parameter not working \n");
+    }
+}
+
 void exponentiation_for_proof_test (void) {
     mpz_t x;
     mpz_t N;
@@ -322,4 +330,6 @@ void test_all_compute_proof(void) {
     compute_proof_brute_force_test();
     compute_proof_opt_test();
 }
+
+
  

@@ -11,9 +11,12 @@
 
 #include "compute_proof.h"
 
+
 void compute_power_2T_test (void);
 
 void compute_power_2T_opt_test (void);
+
+void compute_s_parameter_test (void);
 
 void exponentiation_for_proof_test (void);
 
@@ -30,5 +33,6 @@ void compute_proof_brute_force_test(void);
 void compute_proof_opt_test(void);
 
 void test_all_compute_proof(void);
+
 
 #endif /* unit_tests_h */
