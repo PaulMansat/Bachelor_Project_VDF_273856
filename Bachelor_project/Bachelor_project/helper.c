@@ -264,10 +264,6 @@ void generate_safeprime(unsigned long int size, mpz_t out){
             }
         }
     }
-    
-    
-        
-    
     //##################################################
     /*
     mpz_t greater;
