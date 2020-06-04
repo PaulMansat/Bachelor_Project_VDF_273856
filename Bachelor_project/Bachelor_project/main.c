@@ -198,8 +198,187 @@ void VDF_test(void) {
     }
 }
 
+void benchmark_timeParameter (void) {
+    mpz_t x;
+    mpz_t N;
+    mpz_t y;
+    mpz_inits(x, N, y, NULL);
+    mpz_set_ui(x, 123456);
+    mpz_set_str(N, "16158503035655503650357438344334975980222051334857742016065172713762327569433945446598600705761456731844358980460949009747059779575245460547544076193224141560315438683650498045875098875194826053398028819192033784138396109321309878080919047169238085235290822926018152521443787945770532904303776199561965642282844350721009131075592574364243695880618860889291860118718196676371399528079340206559035126612674866232053943452084332329067399812414572508105263197679145256552814549607319534463349117382246918962235483023376108551954504056221074590325455782931366628146267643957799255048569835849362555689794934167531092723509", 10);
+    
+    // creation of the csv file to save result
+    char * filename_opt = "opt_proof_trial4.csv";
+    printf("Creating %s file \n",filename_opt);
+    FILE *fp_opt;
+    
+    fp_opt=fopen(filename_opt,"w+");
+    
+    fprintf(fp_opt,"T,time");
+    
+    // creation of the csv file to save time to compute challenge
+    char * filename_mul = "multiplication_trial4.csv";
+    printf("Creating %s file \n",filename_mul);
+    FILE *fp_mul;
+    
+    fp_mul=fopen(filename_mul,"w+");
+    fprintf(fp_mul,"T,time");
+    
+    // creation of the csv file to compute the verifiction
+    char * filename_ver = "verification_trial4.csv";
+    printf("Creating %s file \n",filename_ver);
+    FILE *fp_ver;
+    
+    fp_ver=fopen(filename_ver,"w+");
+    fprintf(fp_ver,"T,time");
+    
+    
+    for (int t = 13; t < 30; t++){
+        printf("at iteration : %d \n", t);
+        unsigned long int T = pow(2, t);
+        vector saves;
+        construct_vector(&saves);
+        
+        // Compute mul
+        fprintf(fp_mul,"\n%lu",T);
+        
+        clock_t time_mul;
+        time_mul = clock();
+        compute_power_2T_opt(x, T, N, &saves, y);
+        time_mul = clock() - time_mul;
+        
+        fprintf(fp_mul,",%f ", (double) time_mul/CLOCKS_PER_SEC);
+        
+        
+        mpz_mod (y, y, N);
+        vector pi_opt;
+        construct_vector(&pi_opt);
+        
+        // Compute proof optimized version
+        fprintf(fp_opt,"\n%lu",T);
+        
+        clock_t time_opt;
+        time_opt = clock();
+        compute_proof_opt(x, y, &pi_opt, T, N, &saves);
+        time_opt = clock() - time_opt;
+        
+        fprintf(fp_opt,",%f ", (double) time_opt/CLOCKS_PER_SEC);
+        
+        // verify the proof
+        clock_t time_ver;
+        time_ver = clock();
+        VDF_Ver(x, T, N, y, &pi_opt);
+        time_ver = clock() - time_ver;
+        
+        fprintf(fp_ver,",%f ", (double) time_ver/CLOCKS_PER_SEC);
+        
+    }
+    fclose(fp_opt);
+    fclose(fp_mul);
+    fclose(fp_ver);
+    
+    printf("%s file created \n",filename_opt);
+    printf("%s file created \n",filename_mul);
+    printf("%s file created \n",filename_ver);
+
+    
+}
+
+void benchmark_RSAmodulus () {
+    mpz_t x;
+    mpz_t y;
+    unsigned long int T = pow(2, 25);
+    mpz_inits(x, y, NULL);
+    mpz_set_ui(x, 123456);
+    
+    // creation of the csv file to save result
+    char * filename_opt = "opt_proof_modulus_trial3.csv";
+    printf("Creating %s file \n",filename_opt);
+    FILE *fp_opt;
+    
+    fp_opt=fopen(filename_opt,"w+");
+    
+    fprintf(fp_opt,"m,time");
+    
+    // creation of the csv file to save time to compute challenge
+    char * filename_mul = "multiplication_modulus_trial3.csv";
+    printf("Creating %s file \n",filename_mul);
+    FILE *fp_mul;
+    
+    fp_mul=fopen(filename_mul,"w+");
+    fprintf(fp_mul,"m,time");
+    
+    // creation of the csv file to compute the verifiction
+    char * filename_ver = "verification_modulus_trial3.csv";
+    printf("Creating %s file \n",filename_ver);
+    FILE *fp_ver;
+    
+    fp_ver=fopen(filename_ver,"w+");
+    fprintf(fp_ver,"m,time");
+    
+    
+    for (int m = 7; m < 12; m++){
+        printf("at iteration : %d \n", m);
+        unsigned long int M = pow(2, m);
+        vector saves;
+        construct_vector(&saves);
+        mpz_t N;
+        mpz_init(N);
+        printf("Generating RSA modulus ... \n");
+        generate_RSAmodulus(M, N);
+        
+        // Compute mul
+        fprintf(fp_mul,"\n%lu",M);
+
+        clock_t time_mul;
+        time_mul = clock();
+        compute_power_2T_opt(x, T, N, &saves, y);
+        time_mul = clock() - time_mul;
+        
+        fprintf(fp_mul,",%f ", (double) time_mul/CLOCKS_PER_SEC);
+        
+        
+        mpz_mod (y, y, N);
+        vector pi_opt;
+        construct_vector(&pi_opt);
+        
+        // Compute proof optimized version
+        fprintf(fp_opt,"\n%lu",M);
+        
+        clock_t time_opt;
+        time_opt = clock();
+        compute_proof_opt(x, y, &pi_opt, T, N, &saves);
+        time_opt = clock() - time_opt;
+        
+        fprintf(fp_opt,",%f ", (double) time_opt/CLOCKS_PER_SEC);
+        
+        // verify the proof
+        fprintf(fp_ver,"\n%lu",M);
+
+        clock_t time_ver;
+        time_ver = clock();
+        VDF_Ver(x, T, N, y, &pi_opt);
+        time_ver = clock() - time_ver;
+        
+        fprintf(fp_ver,",%f ", (double) time_ver/CLOCKS_PER_SEC);
+        
+    }
+    fclose(fp_opt);
+    fclose(fp_mul);
+    fclose(fp_ver);
+    
+    printf("%s file created \n",filename_opt);
+    printf("%s file created \n",filename_mul);
+    printf("%s file created \n",filename_ver);
+}
+
 
 int main(int argc, const char * argv[]) {
+    
+    multiplication_wave_trial_while();
+    //multiplication_wave_trial();
+    
+    //benchmark_RSAmodulus();
+    
     // insert code here...
     //test_all_helper();
     //test_all_compute_proof();
@@ -210,15 +389,24 @@ int main(int argc, const char * argv[]) {
     //benchmark_proof_bruteforce();
     //benchmark_proof_opt();
     //benchmark_verification();
+    //benchmark_both_proof();
     
     //printf("s param is : %lu \n", compute_s_parameter(pow(2, 25), 100));
     //benchmark_both_proof();
+    /*
+    mpz_t RSA_modulus;
+    mpz_init(RSA_modulus);
+    generate_RSAmodulus(1024, RSA_modulus);
+     */
     
-    
+    /*
     mpz_t safe_prime;
     mpz_init(safe_prime);
     generate_safeprime(1024, safe_prime);
+    */
+    //gmp_printf ("%s is an mpz %Zd\n", "here", safe_prime);
     
+    //benchmark_final();
     
     
     /*
@@ -233,7 +421,7 @@ int main(int argc, const char * argv[]) {
     /*
     mpz_t N;
     mpz_init(N);
-    mpz_set_str(N, "16158503035655503650357438344334975980222051334857742016065172713762327569433945446598600705761456731844358980460949009747059779575245460547544076193224141560315438683650498045875098875194826053398028819192033784138396109321309878080919047169238085235290822926018152521443787945770532904303776199561965642282844350721009131075592574364243695880618860889291860118718196676371399528079340206559035126612674866232053943452084332329067399812414572508105263197679145256552814549607319534463349117382246918962235483023376108551954504056221074590325455782931366628146267643957799255048569835849362555689794934167531092723509", 10);
+    mpz_set_str(N, "154579265314090126310759039855537908817812416645912656125432859183769146157748593839523870869635890651127962180239018538158164433606854075770518408633922898929411539758537728287320565501956193466079461097177001224349504381731170151716143375716967235542729150320703018702613500761171073697284133335439226208987", 10);
     printf("Size of N : %lu", mpz_sizeinbase(N, 2));
     */
     

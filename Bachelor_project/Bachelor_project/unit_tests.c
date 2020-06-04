@@ -75,7 +75,7 @@ void compute_power_2T_opt_test (void) {
 }
 
 void compute_s_parameter_test (void) {
-    if (6 == compute_s_parameter(pow(2, 25), 100) &&  1 == compute_s_parameter(pow(2, 25), 100)) {
+    if (6 == compute_s_parameter(pow(2, 25), 100)) {
         printf("Green : compute_s_parameter working \n");
     } else {
         printf("Red : compute_s_parameter not working \n");
@@ -274,6 +274,10 @@ void compute_proof_brute_force_test (void) {
     vector_get(&pi, 0, res1);
     vector_get(&pi, 1, res2);
     vector_get(&pi, 2, res3);
+    //printf("%d \n", mpz_get_ui(res2));
+    //printf("%d \n", mpz_get_ui(mu2));
+
+    
     
     if (mpz_get_ui(res1) == mpz_get_ui(mu1) && mpz_get_ui(res2) == mpz_get_ui(mu2) &&
         mpz_get_ui(res3) == mpz_get_ui(mu3)) {

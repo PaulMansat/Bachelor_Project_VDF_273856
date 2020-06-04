@@ -29,6 +29,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AB33323524846B2300B91BC2 /* unit_tests.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = unit_tests.c; path = ../../../../../../Desktop/VDF_modified/unit_tests.c; sourceTree = "<group>"; };
+		AB3332382484723D00B91BC2 /* unit_tests.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = unit_tests.c; path = Bachelor_project/unit_tests.c; sourceTree = "<group>"; };
 		AB84690E235798EC0031A453 /* Bachelor_project */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Bachelor_project; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB846911235798EC0031A453 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		AB84691923579A370031A453 /* helper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = helper.h; sourceTree = "<group>"; };
@@ -59,6 +61,7 @@
 		AB846905235798EC0031A453 = {
 			isa = PBXGroup;
 			children = (
+				AB3332382484723D00B91BC2 /* unit_tests.c */,
 				AB846910235798EC0031A453 /* Bachelor_project */,
 				AB84690F235798EC0031A453 /* Products */,
 			);
@@ -86,6 +89,7 @@
 				AB8469232357E1280031A453 /* hash_function.c */,
 				AB846929235E1E6B0031A453 /* unit_tests.h */,
 				AB84692A235E1E6B0031A453 /* unit_tests.c */,
+				AB33323524846B2300B91BC2 /* unit_tests.c */,
 				AB986E0E237347F900628D39 /* benchmarking.h */,
 				AB986E0F237347F900628D39 /* benchmarking.c */,
 			);
@@ -148,11 +152,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB84692B235E1E6B0031A453 /* unit_tests.c in Sources */,
 				AB846912235798EC0031A453 /* main.c in Sources */,
 				AB986E10237347F900628D39 /* benchmarking.c in Sources */,
 				AB84691B23579A370031A453 /* helper.c in Sources */,
 				AB8469212357DAE80031A453 /* compute_proof.c in Sources */,
-				AB84692B235E1E6B0031A453 /* unit_tests.c in Sources */,
 				AB84691E23579A5B0031A453 /* vector.c in Sources */,
 				AB8469242357E1280031A453 /* hash_function.c in Sources */,
 			);
@@ -289,6 +293,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-lssl",
 					"-lcrypto",

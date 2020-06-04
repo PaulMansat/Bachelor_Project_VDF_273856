@@ -107,6 +107,24 @@ int check_quatratic_residue(const mpz_t var, const mpz_t N);
  */
 unsigned long int greatest_bit_position(unsigned long int num);
 
+/*
+ * Function:  generate_RSAmodulus
+ * --------------------
+ * computes the RSA modulus N of the VDF (i.e find two safeprime and return
+ * their product
+ *
+ *  size : size of each safe prime to be found. The final size of the modulus is size*2
+ *
+ *  returns: an RSA modulus of size size*2
+ */
+void generate_RSAmodulus (unsigned long int size, mpz_t out);
 
 void generate_safeprime(unsigned long int size, mpz_t out);
+
+// **********************************************************************
+// LIWEI'S METHOD
+// **********************************************************************
+
+void compute_power_2T_opt_Liwei (mpz_t x, const unsigned long int T, const mpz_t N1, const mpz_t N2, vector* saves, mpz_t out);
+
 #endif /* helper_h */

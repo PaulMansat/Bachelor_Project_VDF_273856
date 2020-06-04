@@ -56,14 +56,19 @@ void compute_power_2T (mpz_t x, const unsigned long int T, const mpz_t N, mpz_t 
 //#################################################################################################
 unsigned long int compute_s_parameter (unsigned long int T, unsigned long int lambda) {
     int t = (int) log2(T);
-    unsigned long int s = (int) (t/2.0 - log2(t*lambda)/2.0);
-    return s;
+    double temp = t/2.0 - log2(t*lambda)/2.0;
+    if (temp < 0) {
+        return t-3;
+    } else {
+        return (int) temp;
+    }
 }
 
 //#################################################################################################
 void compute_power_2T_opt (mpz_t x, const unsigned long int T, const mpz_t N, vector* saves, mpz_t out) {
     unsigned long int s = compute_s_parameter(T, lambda);
     unsigned long int power_2STEP = pow(2, s);
+    //printf("%d", T/power_2STEP);
     unsigned long int exp_space_between_values = T/power_2STEP;
     
     mpz_t res;
@@ -130,15 +135,17 @@ void exponentiation_for_proof (const mpz_t x, unsigned long int T, mpz_t N, mpz_
                 unsigned long int beta = k % power_2STEP;
                 
                 vector_get(saves, power_2STEP - 1, saved_value);
+                // if condition
                 compute_power_2T(saved_value, T*(alpha -1), N, saved_value);
                 mpz_mod(saved_value, saved_value, N);
                 
+                // if condition
                 compute_power_2T(saved_value, exp_space_between_values * beta, N, saved_value);
                 mpz_mod(saved_value, saved_value, N);
 
                 
             }
-            
+            // if here as well: choose N1 or N2
             compute_power_2T(saved_value, rest_exp, N, saved_value);
             mpz_mod(saved_value, saved_value, N);
 
@@ -240,7 +247,45 @@ unsigned long int greatest_bit_position(unsigned long int num) {
 
 }
 
+void generate_RSAmodulus (unsigned long int size, mpz_t out) {
+    mpz_t safeprime_1;
+    mpz_t safeprime_2;
+    mpz_t random_number;
+    mpz_inits(random_number, safeprime_1, safeprime_2, NULL);
+    gmp_randstate_t state;
+    gmp_randinit_default(state);
+    int count = 0;
+    
+    while (1) {
+        mpz_urandomb(random_number, state, size);
+        //printf("random number under analysis is : %lu \n", mpz_get_ui(random_number));
+        
+        int prob_prime = mpz_probab_prime_p(random_number, 20);
+        if (prob_prime > 0) {
+            mpz_t potential_safeprime;
+            mpz_init(potential_safeprime);
+            mpz_mul_ui(potential_safeprime, random_number, 2);
+            mpz_add_ui(potential_safeprime, potential_safeprime, 1);
+            int prob_safe = mpz_probab_prime_p(potential_safeprime, 20);
+            if (prob_safe > 0) {
+                if (count == 0) {
+                    mpz_set(safeprime_1, potential_safeprime);
+                    //gmp_printf ("Here is a safe prime is an mpz %Zd\n",safeprime_1);
+                    count += 1;
+                } else {
+                    mpz_set(safeprime_2, potential_safeprime);
+                    //gmp_printf ("Here is a safe prime is an mpz %Zd\n",safeprime_2);
+                    mpz_mul(out, safeprime_1, safeprime_2);
+                    gmp_printf ("Here is the prime modulus %Zd\n",out);
+                    return;
+                }
+            }
+        }
+    }
+}
+
 void generate_safeprime(unsigned long int size, mpz_t out){
+   
     mpz_t random_number;
     mpz_init(random_number);
     gmp_randstate_t state;
@@ -264,6 +309,7 @@ void generate_safeprime(unsigned long int size, mpz_t out){
             }
         }
     }
+    
     //##################################################
     /*
     mpz_t greater;
@@ -352,3 +398,39 @@ void generate_safeprime(unsigned long int size, mpz_t out){
     
     return;
 }
+
+// ***************************************************************************
+// LIWEI'S METHOD
+// ***************************************************************************
+
+
+//#################################################################################################
+void compute_power_2T_opt_Liwei (mpz_t x, const unsigned long int T, const mpz_t N1, const mpz_t N2, vector* saves, mpz_t out) {
+    unsigned long int s = compute_s_parameter(T, lambda);
+    unsigned long int power_2STEP = pow(2, s);
+    //printf("%d", T/power_2STEP);
+    unsigned long int exp_space_between_values = T/power_2STEP;
+    
+    mpz_t res;
+    mpz_init(res);
+    compute_power_2T(x, exp_space_between_values, N1, res);
+    vector_push(saves, res);
+    
+    int counter = 1;
+    for (int i = 0; i < power_2STEP - 1; ++i) {
+        if (counter == 1){
+            compute_power_2T(res, exp_space_between_values, N2, res);
+            counter = 0;
+        } else {
+            compute_power_2T(res, exp_space_between_values, N1, res);
+            counter = 1;
+        }
+        if ( !vector_push(saves, res) ) {
+            printf("Unable to save intermediate computation");
+        }
+    }
+    mpz_set(out, res);
+}
+
+
+
